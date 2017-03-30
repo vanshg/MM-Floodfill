@@ -4,6 +4,7 @@
 #include <string>
 
 class Maze;
+class PathFinderImpl;
 
 enum MouseMovement {
     MoveForward,            // Move in the direction mouse is facing
@@ -19,7 +20,7 @@ class PathFinder {
 public:
     virtual ~PathFinder() {}
 
-    /**
+/**
      * Function that instructs the maze how to move the mouse.
      *
      * The PathFinder subclass has complete control of where the mouse
@@ -52,6 +53,17 @@ public:
         (void)maxInfoLen;
         return "";
     }
+};
+
+class PathFinderImpl : public PathFinder {
+public:
+    PathFinderImpl(bool shouldPause = false);
+    virtual MouseMovement nextMovement(unsigned x, unsigned y, const Maze &maze);
+
+protected:
+    bool isAtCenter(unsigned x, unsigned y) const;
+    void pauseIfNecessary();
+    void initManhattanDistances();
 };
 
 #endif

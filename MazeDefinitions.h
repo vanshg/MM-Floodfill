@@ -6,15 +6,15 @@ namespace MazeDefinitions {
 
     enum MazeEncodingName {
         MAZE_CAMM_2012 = 0,
-        MAZE_CAMM_2011,
-        MAZE_APEC_2013,
-        MAZE_APEC_2012,
-        MAZE_ALL_JAPAN_2013,
-        MAZE_ALL_JAPAN_2012,
-        MAZE_ALL_JAPAN_2011,
-        MAZE_ALL_JAPAN_2010,
-        MAZE_ALL_JAPAN_2009,
-        MAZE_ALL_JAPAN_2008,
+        MAZE_CAMM_2011 = 1,
+        MAZE_APEC_2013 = 2,
+        MAZE_APEC_2012 = 3,
+        MAZE_ALL_JAPAN_2013 = 4,
+        MAZE_ALL_JAPAN_2012 = 5,
+        MAZE_ALL_JAPAN_2011 = 6,
+        MAZE_ALL_JAPAN_2010 = 7,
+        MAZE_ALL_JAPAN_2009 = 8,
+        MAZE_ALL_JAPAN_2008 = 9,
 
         MAZE_NAME_MAX
     };

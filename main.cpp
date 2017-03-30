@@ -1,5 +1,5 @@
-#include <iostream>
 #include "Maze.h"
+#include <iostream>
 
 using namespace std;
 
@@ -124,9 +124,16 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    LeftWallFollower leftWallFollower(pause);
-    Maze maze(mazeName, &leftWallFollower);
+//    LeftWallFollower leftWallFollower(pause);
+//    Maze maze(mazeName, &leftWallFollower);
+//    cout << maze.draw(5) << endl << endl;
+//
+//    maze.start();
+
+    PathFinderImpl currMouse(pause);
+    Maze maze(mazeName, &currMouse);
     cout << maze.draw(5) << endl << endl;
 
     maze.start();
+
 }
