@@ -50,6 +50,9 @@ public:
         return !isOpen(mouseX, mouseY, clockwise(heading));
     }
 
+    inline bool wallInBack() const{
+        return !isOpen(mouseX, mouseY, opposite(heading));
+    }
     /**
      * Start running the mouse through the maze.
      * Terminates when the PathFinder's nextMovement method returns MouseMovement::Finish.

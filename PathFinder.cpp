@@ -6,8 +6,9 @@
 #include <stack>
 #include <limits.h>
 #include <array>
-#include "PathFinder.h"
 #include "Maze.h"
+#include "PathFinder.h"
+#include <utility>
 
 using namespace std;
 using namespace MazeDefinitions;
@@ -15,14 +16,17 @@ using namespace MazeDefinitions;
 bool pause;
 std::array<std::array<int, MAZE_LEN>, MAZE_LEN> manhattanDistances;
 //    int manhattanDistances[MAZE_LEN][MAZE_LEN];
+
 stack<pair<int, int>> cellsToVisit;
 
-PathFinderImpl::PathFinderImpl(bool shouldPause){
+PathFinderImpl::PathFinderImpl(bool shouldPause) {
     pause = shouldPause;
     initManhattanDistances();
+    cellsToVisit.push(make_pair(0, 0));
 }
 
 MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, const Maze &maze) {
+    cellsToVisit.pop();
     pauseIfNecessary();
     cout << maze.draw(5) << endl << endl;
     int currentDistance = manhattanDistances[x][y];
@@ -31,38 +35,70 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, const Maze &m
         return Finish;
     }
 
+    int dirToGo = 0;
+
     int minDistance = INT_MAX;
-    if (x + 1 < MAZE_LEN && manhattanDistances[x + 1][y] < minDistance && !maze.wallOnRight()) {
-        minDistance = manhattanDistances[x + 1][y];
-//            cellsToVisit.push(pair(x + 1, y));
+    if (x + 1 < MAZE_LEN && !maze.wallOnRight()) {
+        cellsToVisit.push(make_pair(x + 1, y));
+        if (manhattanDistances[x + 1][y] < minDistance) {
+            minDistance = manhattanDistances[x + 1][y];
+        }
+        dirToGo = 1;
     }
-    if (x - 1 >= 0 && manhattanDistances[x - 1][y] < minDistance && !maze.wallOnLeft()) {
-        minDistance = manhattanDistances[x - 1][y];
-//            cellsToVisit.push(pair(x - 1, y));
+    if (x - 1 >= 0 && !maze.wallOnLeft()) {
+        if (manhattanDistances[x - 1][y] < minDistance) {
+            minDistance = manhattanDistances[x - 1][y];
+        }
+        dirToGo = 2;
+        cellsToVisit.push(make_pair(x - 1, y));
     }
-    if (y + 1 < MAZE_LEN && manhattanDistances[x][y + 1] < minDistance && !maze.wallInFront()) {
-        minDistance = manhattanDistances[x][y + 1];
-//            cellsToVisit.push(pair(x, y + 1));
+    if (y + 1 < MAZE_LEN && !maze.wallInFront()) {
+        if (manhattanDistances[x][y + 1] < minDistance) {
+            minDistance = manhattanDistances[x][y + 1];
+        }
+        dirToGo = 3;
+        cellsToVisit.push(make_pair(x, y + 1));
     }
-    if (y - 1 >= 0 && manhattanDistances[x][y - 1] < minDistance /*&& !maze.wallInBack() ?????*/) {
-        minDistance = manhattanDistances[x][y - 1];
-//            cellsToVisit.push(pair(x, y - 1));
+    if (maze.wallInFront() && maze.wallOnLeft() && maze.wallOnRight() && !maze.wallInBack()) {
+        if (manhattanDistances[x][y - 1] < minDistance) {
+            minDistance = manhattanDistances[x][y - 1];
+        }
+        dirToGo = 4;
+        cellsToVisit.push(make_pair(x, y - 1));
     }
+
+//    if (y - 1 >= 0 && !maze.wallInBack()) {
+//        if (manhattanDistances[x][y - 1] < minDistance) {
+//            minDistance = manhattanDistances[x][y - 1];
+//        }
+//        dirToGo = 4;
+//        cellsToVisit.push(make_pair(x, y - 1));
+//    }
 
     if (minDistance == INT_MAX) {
-//            return Wait;
-    }
-
-    if (currentDistance > minDistance) {
-//            return Wait;
+        return Wait;
     }
 
     if (currentDistance <= minDistance) {
         manhattanDistances[x][y] = minDistance + 1;
     }
 
-    // Push every neighbor onto stack
+    cout << dirToGo << endl;
 
+    switch (dirToGo) {
+        case 0:
+            return MoveForward;
+        case 1:
+            return TurnClockwise;
+        case 2:
+            return TurnCounterClockwise;
+        case 3:
+            return MoveForward;
+        case 4:
+            return TurnAround;
+        default:
+            return Wait;
+    }
     return Wait;
 }
 

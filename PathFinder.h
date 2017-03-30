@@ -4,7 +4,6 @@
 #include <string>
 
 class Maze;
-class PathFinderImpl;
 
 enum MouseMovement {
     MoveForward,            // Move in the direction mouse is facing
@@ -48,9 +47,9 @@ public:
      * @return string of info
      */
     virtual std::string getInfo(unsigned x, unsigned y, size_t maxInfoLen) {
-        (void)x;
-        (void)y;
-        (void)maxInfoLen;
+        (void) x;
+        (void) y;
+        (void) maxInfoLen;
         return "";
     }
 };
@@ -58,11 +57,14 @@ public:
 class PathFinderImpl : public PathFinder {
 public:
     PathFinderImpl(bool shouldPause = false);
+
     virtual MouseMovement nextMovement(unsigned x, unsigned y, const Maze &maze);
 
 protected:
     bool isAtCenter(unsigned x, unsigned y) const;
+
     void pauseIfNecessary();
+
     void initManhattanDistances();
 };
 
