@@ -10,7 +10,7 @@ public:
         visitedStart = false;
     }
 
-    MouseMovement nextMovement(unsigned x, unsigned y, const Maze &maze) {
+    MouseMovement nextMovement(unsigned x, unsigned y, Maze &maze) {
         const bool frontWall = maze.wallInFront();
         const bool leftWall  = maze.wallOnLeft();
 

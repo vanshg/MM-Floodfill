@@ -32,7 +32,7 @@ public:
      * @param y: current row of the mouse (0 is bottom of the maze)
      * @param maze: the maze object that can be queried for current wall positions
      */
-    virtual MouseMovement nextMovement(unsigned x, unsigned y, const Maze &maze) = 0;
+    virtual MouseMovement nextMovement(unsigned x, unsigned y, Maze &maze) = 0;
 
     /**
      * Function used to draw extra info on the maze.
@@ -58,7 +58,7 @@ class PathFinderImpl : public PathFinder {
 public:
     PathFinderImpl(bool shouldPause = false);
 
-    virtual MouseMovement nextMovement(unsigned x, unsigned y, const Maze &maze);
+    virtual MouseMovement nextMovement(unsigned x, unsigned y, Maze &maze);
 
 protected:
     bool isAtCenter(unsigned x, unsigned y) const;

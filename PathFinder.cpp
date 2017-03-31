@@ -22,52 +22,95 @@ stack<pair<int, int>> cellsToVisit;
 PathFinderImpl::PathFinderImpl(bool shouldPause) {
     pause = shouldPause;
     initManhattanDistances();
-    cellsToVisit.push(make_pair(0, 0));
 }
 
-MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, const Maze &maze) {
-    cellsToVisit.pop();
+MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
+//    cellsToVisit.pop();
     pauseIfNecessary();
     cout << maze.draw(5) << endl << endl;
-    int currentDistance = manhattanDistances[x][y];
-    if (currentDistance == 0 || isAtCenter(x, y)) {
+    int currentDistance = manhattanDistances[(MAZE_LEN - 1) - y][x];
+    if (currentDistance == 0) {
         cout << "Found center! Good enough for the demo, won't try to get back." << endl;
         return Finish;
     }
+
+    cellsToVisit.push(make_pair(x, y));
+    while (!cellsToVisit.empty()) {
+        pair<int, int> curr = cellsToVisit.top();
+        cellsToVisit.pop();
+        int currX = curr.first;
+        int currY = curr.second;
+        int currDist = manhattanDistances[(MAZE_LEN - 1) - currY][currX];
+        if (currDist == 0) {
+            cout << "Found the center, not attempting to move back now" << endl;
+            return Finish;
+        }
+
+        int minDist = INT_MAX;
+        Dir currDir = maze.getCurrentDirection();
+        maze.setCurrentDirection(NORTH);
+        if (currX + 1 < MAZE_LEN && !maze.wallOnRight()) {
+            cellsToVisit.push(make_pair(currX + 1, currY));
+            if (manhattanDistances[MAZE_LEN - 1 - currY][currX + 1] < minDist) {
+                minDist = manhattanDistances[MAZE_LEN - 1 - currY][currX + 1];
+            }
+        }
+        if (currX - 1 >= 0 && !maze.wallOnLeft()) {
+            if (manhattanDistances[MAZE_LEN - 1 - currY][currX - 1] < minDist) {
+                minDist = manhattanDistances[MAZE_LEN - 1 - currY][currX - 1];
+            }
+            cellsToVisit.push(make_pair(currX - 1, currY));
+        }
+        if (currY + 1 < MAZE_LEN && !maze.wallInFront()) {
+            if (manhattanDistances[MAZE_LEN - 1 - currY + 1][currX] < minDist) {
+                minDist = manhattanDistances[MAZE_LEN - 1 - currY + 1][currX];
+            }
+            cellsToVisit.push(make_pair(currX, currY + 1));
+        }
+        if (currY - 1 >= 0 && !maze.wallInBack()) {
+            if (manhattanDistances[MAZE_LEN - 1 - currY - 1][currX] < minDist) {
+                minDist = manhattanDistances[MAZE_LEN - 1 - currY - 1][currX];
+            }
+            cellsToVisit.push(make_pair(currX, currY - 1));
+        }
+
+        maze.setCurrentDirection(currDir);
+
+        if (minDist == INT_MAX)
+            continue;
+        if (currDist > minDist)
+            continue;
+        if (currDist <= minDist) {
+            manhattanDistances[MAZE_LEN - 1 - currY][currX] = minDist + 1;
+        }
+    }
+    // flood fill is done now, so we need to pick the smallest manhattan distance path
 
     int dirToGo = 0;
 
     int minDistance = INT_MAX;
     if (x + 1 < MAZE_LEN && !maze.wallOnRight()) {
         cellsToVisit.push(make_pair(x + 1, y));
-        if (manhattanDistances[x + 1][y] < minDistance) {
-            minDistance = manhattanDistances[x + 1][y];
+        if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] < minDistance) {
+            minDistance = manhattanDistances[MAZE_LEN - 1 - y][x + 1];
         }
         dirToGo = 1;
     }
     if (x - 1 >= 0 && !maze.wallOnLeft()) {
-        if (manhattanDistances[x - 1][y] < minDistance) {
-            minDistance = manhattanDistances[x - 1][y];
+        if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] < minDistance) {
+            minDistance = manhattanDistances[MAZE_LEN - 1 - y][x - 1];
         }
         dirToGo = 2;
         cellsToVisit.push(make_pair(x - 1, y));
     }
     if (y + 1 < MAZE_LEN && !maze.wallInFront()) {
-        if (manhattanDistances[x][y + 1] < minDistance) {
-            minDistance = manhattanDistances[x][y + 1];
+        if (manhattanDistances[MAZE_LEN - 1 - y + 1][x] < minDistance) {
+            minDistance = manhattanDistances[MAZE_LEN - 1 - y + 1][x];
         }
         dirToGo = 3;
         cellsToVisit.push(make_pair(x, y + 1));
     }
-    if (maze.wallInFront() && maze.wallOnLeft() && maze.wallOnRight() && !maze.wallInBack()) {
-        if (manhattanDistances[x][y - 1] < minDistance) {
-            minDistance = manhattanDistances[x][y - 1];
-        }
-        dirToGo = 4;
-        cellsToVisit.push(make_pair(x, y - 1));
-    }
-
-//    if (y - 1 >= 0 && !maze.wallInBack()) {
+//    if (maze.wallInFront() && maze.wallOnLeft() && maze.wallOnRight() && !maze.wallInBack()) {
 //        if (manhattanDistances[x][y - 1] < minDistance) {
 //            minDistance = manhattanDistances[x][y - 1];
 //        }
@@ -75,15 +118,30 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, const Maze &m
 //        cellsToVisit.push(make_pair(x, y - 1));
 //    }
 
+    if (y - 1 >= 0 && !maze.wallInBack()) {
+        if (manhattanDistances[MAZE_LEN - 1 - y - 1][x] < minDistance) {
+            minDistance = manhattanDistances[MAZE_LEN - 1 - y - 1][x];
+        }
+        dirToGo = 4;
+        cellsToVisit.push(make_pair(x, y - 1));
+    }
+
     if (minDistance == INT_MAX) {
         return Wait;
     }
 
     if (currentDistance <= minDistance) {
-        manhattanDistances[x][y] = minDistance + 1;
+        manhattanDistances[MAZE_LEN - 1 - y][x] = minDistance + 1;
     }
 
     cout << dirToGo << endl;
+
+    for (int i = 0; i < MAZE_LEN; i++) {
+        for (int j = 0; j < MAZE_LEN; j++) {
+            cout << manhattanDistances[i][j] << "  ";
+        }
+        cout << endl;
+    }
 
     switch (dirToGo) {
         case 0:
@@ -99,7 +157,6 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, const Maze &m
         default:
             return Wait;
     }
-    return Wait;
 }
 
 bool PathFinderImpl::isAtCenter(unsigned x, unsigned y) const {
