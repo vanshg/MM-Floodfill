@@ -40,6 +40,8 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     int dirToGo = 0;
     int currY = 0;
     int currDist = 0;
+    Dir currDir = maze.getCurrentDirection();
+    maze.setCurrentDirection(NORTH);
     if (!justTurned) {
         cellsToVisit.push(make_pair(x, y));
         while (!cellsToVisit.empty()) {
@@ -49,11 +51,8 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
             currY = curr.second;
             currDist = manhattanDistances[(MAZE_LEN - 1) - currY][currX];
             int minDist = INT_MAX;
-            Dir currDir = maze.getCurrentDirection();
-            maze.setCurrentDirection(NORTH);
 
-            if (hasVisited(currX,
-                           currY)) { // then we want to actually see where the walls are, else we treat it as if there are no walls!
+            if (hasVisited(currX, currY)) { // then we want to actually see where the walls are, else we treat it as if there are no walls!
                 if (currX + 1 < MAZE_LEN && !maze.wallOnRight()) {
                     if (manhattanDistances[MAZE_LEN - 1 - currY][currX + 1] < minDist) {
                         minDist = manhattanDistances[MAZE_LEN - 1 - currY][currX + 1];
@@ -62,6 +61,7 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
                 if (currX - 1 >= 0 && !maze.wallOnLeft()) {
                     if (manhattanDistances[MAZE_LEN - 1 - currY][currX - 1] < minDist) {
                         minDist = manhattanDistances[MAZE_LEN - 1 - currY][currX - 1];
+
                     }
                 }
                 if (currY + 1 < MAZE_LEN && !maze.wallInFront()) {
@@ -97,14 +97,13 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
                 }
             }
 
-            maze.setCurrentDirection(currDir);
             if (minDist == INT_MAX)
                 continue;
             if (currDist > minDist)
                 continue;
             if (currDist <= minDist) {
                 manhattanDistances[MAZE_LEN - 1 - currY][currX] = minDist + 1;
-                if (hasVisited(currX, currY)){
+                if (hasVisited(currX, currY)) {
                     if (currDir == NORTH) {
                         if (currX + 1 < MAZE_LEN && !maze.wallOnRight()) {
                             cellsToVisit.push(make_pair(currX + 1, currY));
@@ -118,109 +117,108 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
                         if (currY - 1 >= 0 && !maze.wallInBack()) {
                             cellsToVisit.push(make_pair(currX, currY - 1));
                         }
-                    } else if (currDir == SOUTH) {
-                        if (currX - 1 >= 0 && !maze.wallOnRight()) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
-                        if (currX + 1 < MAZE_LEN && !maze.wallOnLeft()) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                        if (currY - 1 >= 0 && !maze.wallInFront()) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currY + 1 < MAZE_LEN && !maze.wallInBack()) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                    } else if (currDir == WEST) {
-                        if (currY + 1 < MAZE_LEN && !maze.wallOnRight()) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                        if (currY - 1 >= 0 && !maze.wallOnLeft()) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currX - 1 >= 0 && !maze.wallInFront()) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
-                        if (currX + 1 < MAZE_LEN && !maze.wallInBack()) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                    } else if (currDir == EAST) {
-                        if (currY - 1 >= 0 && !maze.wallOnRight()) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currY + 1 < MAZE_LEN && !maze.wallOnLeft()) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                        if (currX + 1 < MAZE_LEN && !maze.wallInFront()) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                        if (currX - 1 >= 0 && !maze.wallInBack()) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
                     }
-                }
-                else{
+//                    else if (currDir == SOUTH) {
+//                        if (currX - 1 >= 0 && !maze.wallOnRight()) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                        if (currX + 1 < MAZE_LEN && !maze.wallOnLeft()) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                        if (currY - 1 >= 0 && !maze.wallInFront()) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currY + 1 < MAZE_LEN && !maze.wallInBack()) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                    } else if (currDir == WEST) {
+//                        if (currY + 1 < MAZE_LEN && !maze.wallOnRight()) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                        if (currY - 1 >= 0 && !maze.wallOnLeft()) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currX - 1 >= 0 && !maze.wallInFront()) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                        if (currX + 1 < MAZE_LEN && !maze.wallInBack()) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                    } else if (currDir == EAST) {
+//                        if (currY - 1 >= 0 && !maze.wallOnRight()) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currY + 1 < MAZE_LEN && !maze.wallOnLeft()) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                        if (currX + 1 < MAZE_LEN && !maze.wallInFront()) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                        if (currX - 1 >= 0 && !maze.wallInBack()) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                    }
+                } else {
                     if (currDir == NORTH) {
-                        if (currX + 1 < MAZE_LEN ) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                        if (currX - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
-                        if (currY + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                        if (currY - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                    } else if (currDir == SOUTH) {
-                        if (currX - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
-                        if (currX + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                        if (currY - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currY + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                    } else if (currDir == WEST) {
-                        if (currY + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
-                        if (currY - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currX - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX - 1, currY));
-                        }
-                        if (currX + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX + 1, currY));
-                        }
-                    } else if (currDir == EAST) {
-                        if (currY - 1 >= 0) {
-                            cellsToVisit.push(make_pair(currX, currY - 1));
-                        }
-                        if (currY + 1 < MAZE_LEN) {
-                            cellsToVisit.push(make_pair(currX, currY + 1));
-                        }
                         if (currX + 1 < MAZE_LEN) {
                             cellsToVisit.push(make_pair(currX + 1, currY));
                         }
                         if (currX - 1 >= 0) {
                             cellsToVisit.push(make_pair(currX - 1, currY));
+                        }
+                        if (currY + 1 < MAZE_LEN) {
+                            cellsToVisit.push(make_pair(currX, currY + 1));
+                        }
+                        if (currY - 1 >= 0) {
+                            cellsToVisit.push(make_pair(currX, currY - 1));
                         }
                     }
+//                      else if (currDir == SOUTH) {
+//                        if (currX - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                        if (currX + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                        if (currY - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currY + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                    } else if (currDir == WEST) {
+//                        if (currY + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                        if (currY - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currX - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                        if (currX + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                    } else if (currDir == EAST) {
+//                        if (currY - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX, currY - 1));
+//                        }
+//                        if (currY + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX, currY + 1));
+//                        }
+//                        if (currX + 1 < MAZE_LEN) {
+//                            cellsToVisit.push(make_pair(currX + 1, currY));
+//                        }
+//                        if (currX - 1 >= 0) {
+//                            cellsToVisit.push(make_pair(currX - 1, currY));
+//                        }
+//                    }
                 }
-
             }
         }
-
+        maze.setCurrentDirection(currDir);
         // flood fill is done now, so we need to pick the smallest manhattan distance path
         int minDistance = INT_MAX;
-        Dir currDir = maze.getCurrentDirection();
         if (currDir == NORTH) {
             if (x + 1 < MAZE_LEN && !maze.wallOnRight()) {
                 if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] < minDistance) {
@@ -326,20 +324,21 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
         dirToGo = 0;
         justTurned = false;
     }
-
-//    if (maze.wallInFront() && maze.wallOnLeft() && maze.wallOnRight() && !maze.wallInBack()) {
-//        if (manhattanDistances[x][y - 1] < minDistance) {
-//            minDistance = manhattanDistances[x][y - 1];
-//        }
-//        dirToGo = 4;
-//        cellsToVisit.push(make_pair(x, y - 1));
-//    }
+    maze.setCurrentDirection(currDir);
 
     cout << dirToGo << endl;
     cout << "The current manhattan distance is : " << manhattanDistances[MAZE_LEN - 1 - y][x] << endl;
     for (int i = 0; i < MAZE_LEN; i++) {
         for (int j = 0; j < MAZE_LEN; j++) {
             cout << manhattanDistances[i][j] << "  ";
+        }
+        cout << endl;
+    }
+
+    cout << endl;
+    for (int i = 0; i < MAZE_LEN; i++) {
+        for (int j = 0; j < MAZE_LEN; j++) {
+            cout << visitedCell[i][j] << "  ";
         }
         cout << endl;
     }
@@ -376,7 +375,7 @@ bool PathFinderImpl::isAtCenter(unsigned x, unsigned y) const {
            (x == midpoint - 1 && y == midpoint - 1);
 }
 
-bool hasVisited(int x, int y) {
+bool PathFinderImpl::hasVisited(int x, int y) {
     return visitedCell[MAZE_LEN - 1 - y][x];
 }
 
