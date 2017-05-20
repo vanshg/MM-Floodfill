@@ -11,8 +11,8 @@ public:
     }
 
     MouseMovement nextMovement(unsigned x, unsigned y, Maze &maze) {
-        const bool frontWall = maze.wallInFront();
-        const bool leftWall  = maze.wallOnLeft();
+        const bool frontWall = maze.wallInFront(x,y);
+        const bool leftWall  = maze.wallOnLeft(x,y);
 
         // Pause at each cell if the user requests it.
         // It allows for better viewing on command line.

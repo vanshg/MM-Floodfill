@@ -117,20 +117,20 @@ public:
         }
     }
 
-    inline bool wallInFront() const {
-        return !isOpen(mouseX, mouseY, heading);
+    inline bool wallInFront(unsigned mX, unsigned mY) const {
+        return !isOpen(mX, mY, heading);
     }
 
-    inline bool wallOnLeft() const {
-        return !isOpen(mouseX, mouseY, counterClockwise(heading));
+    inline bool wallOnLeft(unsigned mX, unsigned mY) const {
+        return !isOpen(mX, mY, counterClockwise(heading));
     }
 
-    inline bool wallOnRight() const {
-        return !isOpen(mouseX, mouseY, clockwise(heading));
+    inline bool wallOnRight(unsigned mX, unsigned mY) const {
+        return !isOpen(mX, mY, clockwise(heading));
     }
 
-    inline bool wallInBack() const {
-        return !isOpen(mouseX, mouseY, opposite(heading));
+    inline bool wallInBack(unsigned mX, unsigned mY) const {
+        return !isOpen(mX, mY, opposite(heading));
     }
 
     /**
