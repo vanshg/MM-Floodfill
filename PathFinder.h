@@ -66,6 +66,8 @@ protected:
     void pauseIfNecessary();
 
     void initManhattanDistances();
+
+    bool hasVisited(int x, int y);
 };
 
 #endif
