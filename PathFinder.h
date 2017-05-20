@@ -63,9 +63,10 @@ public:
 
     virtual std::string getInfo (unsigned x, unsigned y, size_t maxInfoLen);
 
-
 protected:
     bool isAtCenter(unsigned x, unsigned y) const;
+
+    void changeManhattanDistances(bool processCenter);
 
     void pauseIfNecessary();
 

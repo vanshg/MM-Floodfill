@@ -17,7 +17,8 @@ bool pause;
 bool justTurned = false;
 std::array<std::array<int, MAZE_LEN>, MAZE_LEN> manhattanDistances;
 std::array<std::array<int, MAZE_LEN>, MAZE_LEN> visitedCell;
-//    int manhattanDistances[MAZE_LEN][MAZE_LEN];
+
+bool goingToCenter = true;
 
 stack<pair<int, int>> cellsToVisit;
 
@@ -34,9 +35,15 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     pauseIfNecessary();
     cout << maze.draw(5) << endl << endl;
     int currentDistance = manhattanDistances[(MAZE_LEN - 1) - y][x];
-    if (currentDistance == 0) {
-        cout << "Found center! Good enough for the demo, won't try to get back." << endl;
-        return Finish;
+    if (goingToCenter && currentDistance == 0) {
+        cout << "Found the center, time to run floodfill to go back to the start!" << endl;
+        goingToCenter = false;
+        changeManhattanDistances(goingToCenter);
+//        return Finish;
+    } else if (!goingToCenter && currentDistance == 0) {
+        cout << "Found the start, time to run floodfill again to go back to the center!" << endl;
+        goingToCenter = true;
+        changeManhattanDistances(goingToCenter);
     }
 
     visitedCell[(MAZE_LEN - 1) - y][x] = 1;
@@ -105,52 +112,52 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
                 continue;
             if (currDist > minDist)
                 continue;
-            if ((currDist + 1) <= minDist) {
+            if (currDist <= minDist) {
                 cout << "Changing the following coordinate ( " << currX << "," << currY << ") from "
                      << manhattanDistances[MAZE_LEN - 1 - currY][currX] << " to " << minDist + 1 << endl;
                 manhattanDistances[MAZE_LEN - 1 - currY][currX] = minDist + 1;
-            }
-            if (hasVisited(currX, currY)) {
-                if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
+                if (hasVisited(currX, currY)) {
+                    if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
 //                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX, currY + 1));
-                }
-                if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
+                        cellsToVisit.push(make_pair(currX, currY + 1));
+                    }
+                    if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
 //                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX + 1, currY));
-                }
-                if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
+                        cellsToVisit.push(make_pair(currX + 1, currY));
+                    }
+                    if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
 //                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX, currY - 1));
-                }
-                if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
+                        cellsToVisit.push(make_pair(currX, currY - 1));
+                    }
+                    if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
 //                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX - 1, currY));
-                }
-            } else {
-                if (currY + 1 < MAZE_LEN) {
+                        cellsToVisit.push(make_pair(currX - 1, currY));
+                    }
+                } else {
+                    if (currY + 1 < MAZE_LEN) {
 //                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX, currY + 1));
-                }
-                if (currX + 1 < MAZE_LEN) {
+                        cellsToVisit.push(make_pair(currX, currY + 1));
+                    }
+                    if (currX + 1 < MAZE_LEN) {
 //                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX + 1, currY));
-                }
-                if (currY - 1 >= 0) {
+                        cellsToVisit.push(make_pair(currX + 1, currY));
+                    }
+                    if (currY - 1 >= 0) {
 //                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX, currY - 1));
-                }
-                if (currX - 1 >= 0) {
+                        cellsToVisit.push(make_pair(currX, currY - 1));
+                    }
+                    if (currX - 1 >= 0) {
 //                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
 //                             << endl;
-                    cellsToVisit.push(make_pair(currX - 1, currY));
+                        cellsToVisit.push(make_pair(currX - 1, currY));
+                    }
                 }
             }
         }
@@ -317,6 +324,49 @@ bool PathFinderImpl::hasVisited(int x, int y) {
     return visitedCell[MAZE_LEN - 1 - y][x];
 }
 
+void PathFinderImpl::changeManhattanDistances(bool processCenter) {
+    if (processCenter) {
+        manhattanDistances = {{
+                                      {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
+                                      {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
+                                      {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
+                                      {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
+                                      {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
+                                      {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
+                                      {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
+                                      {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
+                                      {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
+                                      {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
+                                      {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
+                                      {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
+                                      {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
+                                      {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
+                                      {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
+                                      {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
+                              }};
+    } else {
+        for (int i = 0; i < MAZE_LEN / 2; i++) {
+            for (int j = 0; j < MAZE_LEN / 2; j++) {
+                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+            }
+        }
+        for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
+            for (int j = 0; j < MAZE_LEN / 2; j++) {
+                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+            }
+        }
+        for (int i = 0; i < MAZE_LEN / 2; i++) {
+            for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
+                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+            }
+        }
+        for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
+            for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
+                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+            }
+        }
+    }
+}
 
 void PathFinderImpl::pauseIfNecessary() {
     // Pause at each cell if the user requests it.
