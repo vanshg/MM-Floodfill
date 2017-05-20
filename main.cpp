@@ -101,8 +101,10 @@ protected:
 
 
 int main(int argc, char * argv[]) {
-    MazeDefinitions::MazeEncodingName mazeName = MazeDefinitions::MAZE_CAMM_2012;
+//    MazeDefinitions::MazeEncodingName mazeName = MazeDefinitions::MAZE_CAMM_2012;
+    MazeDefinitions::MazeEncodingName mazeName = MazeDefinitions::MAZE_ALL_JAPAN_2008;
     bool pause = false;
+
 
     // Since Windows does not support getopt directly, we will
     // have to parse the command line arguments ourselves.

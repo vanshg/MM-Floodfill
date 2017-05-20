@@ -26,6 +26,10 @@ PathFinderImpl::PathFinderImpl(bool shouldPause) {
     initManhattanDistances();
 }
 
+string PathFinderImpl::getInfo(unsigned x, unsigned y, size_t maxInfoLen) {
+    return std::to_string(manhattanDistances[MAZE_LEN - 1 - y][x]);
+}
+
 MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     pauseIfNecessary();
     cout << maze.draw(5) << endl << endl;
@@ -101,51 +105,52 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
                 continue;
             if (currDist > minDist)
                 continue;
-            if (currDist <= minDist) {
+            if ((currDist + 1) <= minDist) {
+                cout << "Changing the following coordinate ( " << currX << "," << currY << ") from "
+                     << manhattanDistances[MAZE_LEN - 1 - currY][currX] << " to " << minDist + 1 << endl;
                 manhattanDistances[MAZE_LEN - 1 - currY][currX] = minDist + 1;
-                if (hasVisited(currX, currY)) {
-
-                    if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
-                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX + 1, currY));
-                    }
-                    if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
-                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX - 1, currY));
-                    }
-                    if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
-                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY + 1));
-                    }
-                    if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
-                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY - 1));
-                    }
-                } else {
-                    if (currX + 1 < MAZE_LEN) {
-                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX + 1, currY));
-                    }
-                    if (currX - 1 >= 0) {
-                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX - 1, currY));
-                    }
-                    if (currY + 1 < MAZE_LEN) {
-                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY + 1));
-                    }
-                    if (currY - 1 >= 0) {
-                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
-                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY - 1));
-                    }
+            }
+            if (hasVisited(currX, currY)) {
+                if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
+//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX, currY + 1));
+                }
+                if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
+//                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX + 1, currY));
+                }
+                if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
+//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX, currY - 1));
+                }
+                if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
+//                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX - 1, currY));
+                }
+            } else {
+                if (currY + 1 < MAZE_LEN) {
+//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX, currY + 1));
+                }
+                if (currX + 1 < MAZE_LEN) {
+//                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX + 1, currY));
+                }
+                if (currY - 1 >= 0) {
+//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX, currY - 1));
+                }
+                if (currX - 1 >= 0) {
+//                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
+//                             << endl;
+                    cellsToVisit.push(make_pair(currX - 1, currY));
                 }
             }
         }
@@ -154,100 +159,100 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
         int minDistance = INT_MAX;
         if (currDir == NORTH) {
             if (x + 1 < MAZE_LEN && !maze.wallOnRight(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - y][x + 1];
                     dirToGo = 1;
                 }
             }
             if (x - 1 >= 0 && !maze.wallOnLeft(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - y][x - 1];
                     dirToGo = 2;
                 }
             }
             if (y + 1 < MAZE_LEN && !maze.wallInFront(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y + 1)][x];
                     dirToGo = 3;
                 }
             }
             if (y - 1 >= 0 && !maze.wallInBack(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y - 1)][x];
                     dirToGo = 4;
                 }
             }
         } else if (currDir == SOUTH) {
             if (x - 1 >= 0 && !maze.wallOnRight(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - y][x - 1];
                     dirToGo = 1;
                 }
             }
             if (x + 1 < MAZE_LEN && !maze.wallOnLeft(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - y][x + 1];
                     dirToGo = 2;
                 }
             }
             if (y - 1 >= 0 && !maze.wallInFront(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y - 1)][x];
                     dirToGo = 3;
                 }
             }
             if (y + 1 < MAZE_LEN && !maze.wallInBack(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y + 1)][x];
                     dirToGo = 4;
                 }
             }
         } else if (currDir == EAST) {
             if (y - 1 >= 0 && !maze.wallOnRight(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y - 1)][x];
                     dirToGo = 1;
                 }
             }
             if (y + 1 < MAZE_LEN && !maze.wallOnLeft(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y + 1)][x];
                     dirToGo = 2;
                 }
             }
             if (x + 1 < MAZE_LEN && !maze.wallInFront(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x + 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y)][x + 1];
                     dirToGo = 3;
                 }
             }
             if (x - 1 >= 0 && !maze.wallInBack(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y)][x - 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y)][x - 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y)][x - 1];
                     dirToGo = 4;
                 }
             }
         } else if (currDir == WEST) {
             if (y + 1 < MAZE_LEN && !maze.wallOnRight(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y + 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y + 1)][x];
                     dirToGo = 1;
                 }
             }
             if (y - 1 >= 0 && !maze.wallOnLeft(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y - 1)][x] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y - 1)][x];
                     dirToGo = 2;
                 }
             }
             if (x - 1 >= 0 && !maze.wallInFront(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - y][x - 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y)][x - 1];
                     dirToGo = 3;
                 }
             }
             if (x + 1 < MAZE_LEN && !maze.wallInBack(x, y)) {
-                if (manhattanDistances[MAZE_LEN - 1 - (y)][x + 1] < minDistance) {
+                if (manhattanDistances[MAZE_LEN - 1 - (y)][x + 1] <= minDistance) {
                     minDistance = manhattanDistances[MAZE_LEN - 1 - (y)][x + 1];
                     dirToGo = 4;
                 }
@@ -259,14 +264,14 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     }
     maze.setCurrentDirection(currDir);
 
-    cout << dirToGo << endl;
-    cout << "The current manhattan distance is : " << manhattanDistances[MAZE_LEN - 1 - y][x] << endl;
-    for (int i = 0; i < MAZE_LEN; i++) {
-        for (int j = 0; j < MAZE_LEN; j++) {
-            cout << manhattanDistances[i][j] << "  ";
-        }
-        cout << endl;
-    }
+//    cout << dirToGo << endl;
+//    cout << "The current manhattan distance is : " << manhattanDistances[MAZE_LEN - 1 - y][x] << endl;
+//    for (int i = 0; i < MAZE_LEN; i++) {
+//        for (int j = 0; j < MAZE_LEN; j++) {
+//            cout << manhattanDistances[i][j] << "  ";
+//        }
+//        cout << endl;
+//    }
 //
 //    cout << endl;
 //    for (int i = 0; i < MAZE_LEN; i++) {
