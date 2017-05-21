@@ -113,51 +113,35 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
             if (currDist > minDist)
                 continue;
             if (currDist <= minDist) {
-                cout << "Changing the following coordinate ( " << currX << "," << currY << ") from "
-                     << manhattanDistances[MAZE_LEN - 1 - currY][currX] << " to " << minDist + 1 << endl;
+//                cout << "Changing the following coordinate ( " << currX << "," << currY << ") from "
+//                     << manhattanDistances[MAZE_LEN - 1 - currY][currX] << " to " << minDist + 1 << endl;
                 manhattanDistances[MAZE_LEN - 1 - currY][currX] = minDist + 1;
-                if (hasVisited(currX, currY)) {
-                    if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
-//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY + 1));
-                    }
-                    if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
-//                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX + 1, currY));
-                    }
-                    if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
-//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY - 1));
-                    }
-                    if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
-//                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX - 1, currY));
-                    }
-                } else {
-                    if (currY + 1 < MAZE_LEN) {
-//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY + 1 << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY + 1));
-                    }
-                    if (currX + 1 < MAZE_LEN) {
-//                        cout << "Adding the following coordinate to the stack (" << currX + 1 << "," << currY << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX + 1, currY));
-                    }
-                    if (currY - 1 >= 0) {
-//                        cout << "Adding the following coordinate to the stack (" << currX << "," << currY - 1 << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX, currY - 1));
-                    }
-                    if (currX - 1 >= 0) {
-//                        cout << "Adding the following coordinate to the stack (" << currX - 1 << "," << currY << ")"
-//                             << endl;
-                        cellsToVisit.push(make_pair(currX - 1, currY));
-                    }
+            }
+            if (hasVisited(currX, currY)) {
+                if (currY + 1 < MAZE_LEN && !maze.wallInFront((unsigned) currX, (unsigned) currY)) {
+                    cellsToVisit.push(make_pair(currX, currY + 1));
+                }
+                if (currX + 1 < MAZE_LEN && !maze.wallOnRight((unsigned) currX, (unsigned) currY)) {
+                    cellsToVisit.push(make_pair(currX + 1, currY));
+                }
+                if (currY - 1 >= 0 && !maze.wallInBack((unsigned) currX, (unsigned) currY)) {
+                    cellsToVisit.push(make_pair(currX, currY - 1));
+                }
+                if (currX - 1 >= 0 && !maze.wallOnLeft((unsigned) currX, (unsigned) currY)) {
+                    cellsToVisit.push(make_pair(currX - 1, currY));
+                }
+            } else {
+                if (currY + 1 < MAZE_LEN) {
+                    cellsToVisit.push(make_pair(currX, currY + 1));
+                }
+                if (currX + 1 < MAZE_LEN) {
+                    cellsToVisit.push(make_pair(currX + 1, currY));
+                }
+                if (currY - 1 >= 0) {
+                    cellsToVisit.push(make_pair(currX, currY - 1));
+                }
+                if (currX - 1 >= 0) {
+                    cellsToVisit.push(make_pair(currX - 1, currY));
                 }
             }
         }
