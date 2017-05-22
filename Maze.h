@@ -117,6 +117,12 @@ public:
         }
     }
 
+    void restartMouse(){
+        mouseX = 0;
+        mouseY = 0;
+        setCurrentDirection(NORTH);
+    }
+
     inline bool wallInFront(unsigned mX, unsigned mY) const {
         return !isOpen(mX, mY, heading);
     }
