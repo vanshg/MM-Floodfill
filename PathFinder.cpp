@@ -17,6 +17,8 @@ bool pause;
 bool justTurned = false;
 std::array<std::array<int, MAZE_LEN>, MAZE_LEN> manhattanDistances;
 std::array<std::array<int, MAZE_LEN>, MAZE_LEN> visitedCell;
+std::array<std::array<int, MAZE_LEN>, MAZE_LEN> toCenterDistance;
+std::array<std::array<int, MAZE_LEN>, MAZE_LEN> toStartDistance;
 
 bool goingToCenter = true;
 
@@ -37,14 +39,14 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     int currentDistance = manhattanDistances[(MAZE_LEN - 1) - y][x];
     if (goingToCenter && currentDistance == 0) {
         cout << "Found the center, time to run floodfill to go back to the start!" << endl;
-//        goingToCenter = false;
-//        changeManhattanDistances(goingToCenter);
-        maze.restartMouse();
-        return Wait;
+        goingToCenter = false;
+        changeManhattanDistances(goingToCenter);
+//        maze.restartMouse();
+//        return Wait;
     } else if (!goingToCenter && currentDistance == 0) {
         cout << "Found the start, time to run floodfill again to go back to the center!" << endl;
-//        goingToCenter = true;
-//        changeManhattanDistances(goingToCenter);
+        goingToCenter = true;
+        changeManhattanDistances(goingToCenter);
     }
 
     visitedCell[(MAZE_LEN - 1) - y][x] = 1;
@@ -310,44 +312,26 @@ bool PathFinderImpl::hasVisited(int x, int y) {
 }
 
 void PathFinderImpl::changeManhattanDistances(bool processCenter) {
-    if (processCenter) {
-        manhattanDistances = {{
-                                      {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
-                                      {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
-                                      {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
-                                      {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
-                                      {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
-                                      {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
-                                      {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
-                                      {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
-                                      {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
-                                      {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
-                                      {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
-                                      {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
-                                      {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
-                                      {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
-                                      {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
-                                      {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
-                              }};
+    if (!processCenter) {
+        for (int i = 0; i < MAZE_LEN; i++) {
+            for (int j = 0; j < MAZE_LEN; j++) {
+                toCenterDistance[i][j] = manhattanDistances[i][j];
+            }
+        }
+        for (int i = 0; i < MAZE_LEN; i++) {
+            for (int j = 0; j < MAZE_LEN; j++) {
+                manhattanDistances[i][j] = toStartDistance[i][j];
+            }
+        }
     } else {
-        for (int i = 0; i < MAZE_LEN / 2; i++) {
-            for (int j = 0; j < MAZE_LEN / 2; j++) {
-                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        for (int i = 0; i < MAZE_LEN; i++) {
+            for (int j = 0; j < MAZE_LEN; j++) {
+                toStartDistance[i][j] = manhattanDistances[i][j];
             }
         }
-        for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
-            for (int j = 0; j < MAZE_LEN / 2; j++) {
-                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
-            }
-        }
-        for (int i = 0; i < MAZE_LEN / 2; i++) {
-            for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
-                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
-            }
-        }
-        for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
-            for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
-                manhattanDistances[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        for (int i = 0; i < MAZE_LEN; i++) {
+            for (int j = 0; j < MAZE_LEN; j++) {
+                manhattanDistances[i][j] = toCenterDistance[i][j];
             }
         }
     }
@@ -400,4 +384,44 @@ void PathFinderImpl::initManhattanDistances() {
                            {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
                            {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
                    }};
+
+    toCenterDistance = {{
+                                {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
+                                {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
+                                {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
+                                {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
+                                {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
+                                {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
+                                {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
+                                {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
+                                {{7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7}},
+                                {{8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8}},
+                                {{9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9}},
+                                {{10, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 10}},
+                                {{11, 10, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 10, 11}},
+                                {{12, 11, 10, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 10, 11, 12}},
+                                {{13, 12, 11, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13}},
+                                {{14, 13, 12, 11, 10, 9, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14}},
+                        }};
+
+    for (int i = 0; i < MAZE_LEN / 2; i++) {
+        for (int j = 0; j < MAZE_LEN / 2; j++) {
+            toStartDistance[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        }
+    }
+    for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
+        for (int j = 0; j < MAZE_LEN / 2; j++) {
+            toStartDistance[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        }
+    }
+    for (int i = 0; i < MAZE_LEN / 2; i++) {
+        for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
+            toStartDistance[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        }
+    }
+    for (int i = MAZE_LEN / 2; i < MAZE_LEN; i++) {
+        for (int j = MAZE_LEN / 2; j < MAZE_LEN; j++) {
+            toStartDistance[MAZE_LEN - 1 - j][i] = abs(0 - j) + abs(0 - i);
+        }
+    }
 }
