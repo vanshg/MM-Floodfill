@@ -38,13 +38,11 @@ MouseMovement PathFinderImpl::nextMovement(unsigned x, unsigned y, Maze &maze) {
     cout << maze.draw(5) << endl << endl;
     int currentDistance = manhattanDistances[(MAZE_LEN - 1) - y][x];
     if (goingToCenter && currentDistance == 0) {
-        cout << "Found the center, time to run floodfill to go back to the start!" << endl;
+//        cout << "Found the center, time to run floodfill to go back to the start!" << endl;
         goingToCenter = false;
         changeManhattanDistances(goingToCenter);
-//        maze.restartMouse();
-//        return Wait;
     } else if (!goingToCenter && currentDistance == 0) {
-        cout << "Found the start, time to run floodfill again to go back to the center!" << endl;
+//        cout << "Found the start, time to run floodfill again to go back to the center!" << endl;
         goingToCenter = true;
         changeManhattanDistances(goingToCenter);
     }
